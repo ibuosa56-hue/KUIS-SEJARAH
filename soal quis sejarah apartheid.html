@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Sejarah: Apartheid di Afrika</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            box-sizing: border-box;
+            position: relative;
+        }
+        h1, h2 {
+            color: var(--primary);
+            text-align: center;
+            margin-top: 0;
+        }
+        .btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin: 5px;
+        }
+        .btn:hover {
+            background-color: var(--primary);
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+        
+        /* Perbaikan Area Soal agar tidak tertumpuk */
+        .question-box {
+            margin-bottom: 20px;
+        }
+        #question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* Memberikan jarak yang aman antar pilihan */
+            margin-top: 10px;
+        }
+        .option-item {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            padding: 14px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+        .option-item:hover {
+            background: #eff6ff;
+            border-color: var(--secondary);
+        }
+        .option-item input {
+            margin-top: 3px; /* Penjajaran rapi checkbox/radio dengan teks */
+            cursor: pointer;
+            transform: scale(1.1);
+        }
+
+        /* Perbaikan Tampilan Menjodohkan */
+        .match-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .match-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #f9fafb;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        @media(min-width: 600px) {
+            .match-row {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+        .match-row select {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            font-size: 14px;
+            width: 100%;
+            max-width: 300px;
+            background: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+        }
+        .warning-banner {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+            border: 1px solid #fecaca;
+            line-height: 1.4;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-family: inherit;
+            margin-top: 10px;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+        .score-display {
+            font-size: 26px;
+            font-weight: bold;
+            text-align: center;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+        table.review-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        table.review-table th, table.review-table td {
+            border: 1px solid #d1d5db;
+            padding: 10px;
+            text-align: left;
+        }
+        table.review-table th {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- SCREEN 1: START -->
+    <div id="start-screen" class="screen active">
+        <h1>Kuis Sejarah: Apartheid di Afrika</h1>
+        <p style="text-align: center; color: #4b5563; margin-bottom: 25px;">SMAN 14 Bekasi — Kelas XII Fase F</p>
+        <div class="warning-banner">
+            ⚠️ <strong>Perhatian Sistem Anti-Kecurangan:</strong> Kuis ini dilengkapi pengaman aktif. Jika Anda keluar dari halaman kuis, beralih tab, atau meminimalkan browser, kuis akan otomatis mendeteksi dan menghentikan sesi!
+        </div>
+        <p style="line-height: 1.6;">Kuis ini mencakup Pilihan Ganda, Pilihan Ganda Kompleks, Benar-Salah, dan Menjodohkan. Klik tombol di bawah untuk masuk ke mode Layar Penuh dan memulai kuis.</p>
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="startQuiz()">Mulai Kuis Sekarang</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: QUIZ -->
+    <div id="quiz-screen" class="screen">
+        <div class="warning-banner" style="margin-bottom: 15px; padding: 8px;">Mode Aman Aktif: Tetap di halaman ini selama kuis berlangsung.</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <span id="question-tracker" style="font-weight: bold; color: var(--secondary); font-size: 16px;">Soal 1 dari 40</span>
+            <span id="question-type-badge" style="background: #e0e7ff; color: var(--primary); padding: 5px 10px; border-radius: 4px; font-size: 13px; font-weight: bold;">Pilihan Ganda</span>
+        </div>
+        
+        <div class="question-box">
+            <h3 id="question-text">Pertanyaan akan muncul di sini...</h3>
+            <div id="question-content-container"></div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" id="prev-btn" onclick="prevQuestion()">Sebelumnya</button>
+            <button class="btn" id="next-btn" onclick="nextQuestion()">Selanjutnya</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: REFLECTION -->
+    <div id="reflection-screen" class="screen">
+        <h2>Refleksi Pembelajaran</h2>
+        <p style="line-height: 1.5;">Sebelum melihat hasil akhir, silakan tuliskan refleksi singkat mengenai apa yang telah Anda pelajari dari topik Apartheid di Afrika:</p>
+        <textarea id="reflection-text" placeholder="Tuliskan refleksi, pemahaman baru, atau kesan Anda di sini..."></textarea>
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn" onclick="submitReflection()">Kirim & Lihat Hasil</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 4: RESULT -->
+    <div id="result-screen" class="screen">
+        <h2>Hasil Kuis Anda</h2>
+        <div class="score-display" id="final-score-text">Skor: 0 / 100</div>
+        
+        <h3>Refleksi Anda:</h3>
+        <p id="display-reflection" style="background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #e5e7eb; font-style: italic; line-height: 1.5;"></p>
+
+        <h3 style="margin-top: 20px;">Rincian Pembahasan & Jawaban:</h3>
+        <div style="max-height: 320px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 6px;">
+            <table class="review-table" id="review-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Soal</th>
+                        <th>Jawaban Anda</th>
+                        <th>Kunci</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="review-tbody">
+                    <!-- Dinamis -->
+                </tbody>
+            </table>
+        </div>
+
+        <div style="text-align: center; margin-top: 25px;">
+            <button class="btn" onclick="restartQuiz()">Ulangi Kuis</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // PILIHAN GANDA (1-20)
+        { type: "mc", q: "Secara terminologi, Apartheid berasal dari bahasa Afrikaans yang berarti...", options: ["Keterpisahan", "Keadilan", "Perbudakan", "Persatuan", "Kemerdekaan"], answer: 0 },
+        { type: "mc", q: "Partai manakah yang memenangkan pemilu 1948 dan secara resmi memberlakukan sistem Apartheid di Afrika Selatan?", options: ["African National Congress", "National Party", "Democratic Alliance", "Labour Party", "Inkatha Freedom Party"], answer: 1 },
+        { type: "mc", q: "Kelompok ras minoritas yang memegang kekuasaan politik selama masa Apartheid adalah...", options: ["Kulit Hitam", "Asia", "Kulit Berwarna", "Kulit Putih", "Keturunan India"], answer: 3 },
+        { type: "mc", q: "Berdasarkan Undang-Undang Klasifikasi Penduduk, kelompok 'Coloured' merujuk pada...", options: ["Penduduk asli Afrika", "Keturunan Eropa murni", "Penduduk ras campuran", "Imigran dari India", "Penduduk keturunan Inggris"], answer: 2 },
+        { type: "mc", q: "Undang-undang yang mewajibkan penduduk kulit hitam membawa dokumen identitas saat bepergian ke wilayah kulit putih disebut...", options: ["Group Areas Act", "Bantustan Act", "Separate Amenities Act", "Mixed Marriages Act", "Pass Laws"], answer: 4 },
+        { type: "mc", q: "Township terkenal yang menjadi pusat pemukiman paksa penduduk kulit hitam dan saksi bisu berbagai aksi protes adalah...", options: ["Soweto", "Cape Town", "Pretoria", "Bloemfontein", "Durban"], answer: 0 },
+        { type: "mc", q: "Apa tujuan utama dari kebijakan 'Bantustan'?", options: ["Memberikan kemandirian ekonomi kepada penduduk kulit hitam", "Membangun pusat pariwisata baru di Afrika Selatan", "Memisahkan penduduk kulit hitam ke wilayah otonom agar kehilangan hak suara di pusat", "Meningkatkan kualitas pendidikan bagi penduduk asli Afrika", "Menjadikan wilayah tersebut sebagai pusat industri militer"], answer: 2 },
+        { type: "mc", q: "Berapa lama Nelson Mandela menghabiskan waktu di dalam penjara karena perjuangannya melawan Apartheid?", options: ["10 tahun", "27 tahun", "15 tahun", "30 tahun", "20 tahun"], answer: 1 },
+        { type: "mc", q: "Pelarangan pernikahan antara orang kulit putih dengan ras lain diatur dalam...", options: ["Separate Amenities Act", "Pass Laws", "Group Areas Act", "Prohibition of Mixed Marriages Act", "Land Act"], answer: 3 },
+        { type: "mc", q: "Tokoh pejuang anti-apartheid yang menekankan pada gerakan kesadaran hitam (Black Consciousness) adalah...", options: ["Nelson Mandela", "Steve Biko", "Desmond Tutu", "F.W. de Klerk", "Thabo Mbeki"], answer: 1 },
+        { type: "mc", q: "Dunia internasional menekan pemerintah Afrika Selatan agar menghapus Apartheid melalui...", options: ["Bantuan dana pembangunan", "Pemberian wilayah tambahan", "Perjanjian perdagangan bebas", "Pengiriman pasukan perdamaian untuk mendukung pemerintah", "Sanksi ekonomi dan embargo senjata"], answer: 4 },
+        { type: "mc", q: "Siapakah Uskup Agung yang memenangkan Nobel Perdamaian atas upayanya melawan Apartheid tanpa kekerasan?", options: ["Desmond Tutu", "Robert Sobukwe", "Oliver Tambo", "Walter Sisulu", "Chris Hani"], answer: 0 },
+        { type: "mc", q: "Nama sayap militer ANC yang didirikan untuk melakukan perjuangan bersenjata adalah...", options: ["Black Panthers", "Mau Mau", "Umkhonto we Sizwe", "Sinn Fein", "Viet Cong"], answer: 2 },
+        { type: "mc", q: "Pemisahan fasilitas umum seperti bangku taman, pantai, dan rumah sakit dengan label 'Whites Only' diatur dalam...", options: ["Pass Laws", "Reservation of Separate Amenities Act", "Group Areas Act", "Immorality Act", "Native Land Act"], answer: 1 },
+        { type: "mc", q: "Perubahan besar terjadi pada tahun 1990 ketika Presiden F.W. de Klerk melakukan langkah...", options: ["Menangkap kembali Nelson Mandela", "Memperketat sistem Apartheid", "Mengundurkan diri secara sepihak", "Meminta bantuan militer Amerika", "Mencabut larangan terhadap ANC dan organisasi politik lainnya"], answer: 4 },
+        { type: "mc", q: "Kapan pemilu demokratis pertama yang melibatkan semua ras dilaksanakan di Afrika Selatan?", options: ["1948", "1960", "1985", "1994", "1999"], answer: 3 },
+        { type: "mc", q: "Istilah 'Rainbow Nation' (Bangsa Pelangi) digunakan untuk menggambarkan Afrika Selatan pasca-Apartheid karena...", options: ["Keragaman ras yang hidup berdampingan secara damai", "Banyaknya pelangi yang muncul di wilayah tersebut", "Bendera negara yang hanya terdiri dari dua warna", "Hanya ada satu ras dominan di sana", "Sistem politik yang sangat tertutup"], answer: 0 },
+        { type: "mc", q: "Salah satu bentuk diskriminasi di bidang politik adalah...", options: ["Wajib militer bagi kulit hitam", "Kulit putih dilarang berpolitik", "Penduduk kulit hitam tidak memiliki hak suara", "Penduduk kulit hitam wajib menjadi pejabat", "Pembubaran Partai Nasional"], answer: 2 },
+        { type: "mc", q: "Embargo olahraga terhadap Afrika Selatan selama masa Apartheid mengakibatkan negara tersebut dilarang ikut serta dalam...", options: ["Hanya kompetisi regional Afrika", "Olimpiade dan Piala Dunia", "Hanya kompetisi kriket", "Semua kegiatan ekonomi", "Pertukaran pelajar internasional"], answer: 1 },
+        { type: "mc", q: "Siapakah yang mendampingi Nelson Mandela menerima Nobel Perdamaian pada tahun 1993?", options: ["Desmond Tutu", "Steve Biko", "Thabo Mbeki", "F.W. de Klerk", "Cyril Ramaphosa"], answer: 3 },
+
+        // PILIHAN GANDA KOMPLEKS (21-25)
+        { type: "mcc", q: "Manakah di antara undang-undang berikut yang menjadi pilar utama sistem Apartheid? (Pilih 3 jawaban benar)", options: ["Group Areas Act", "Prohibition of Mixed Marriages Act", "Human Rights Act", "Reservation of Separate Amenities Act", "Social Security Act"], answer: [0, 1, 3] },
+        { type: "mcc", q: "Siapa saja tokoh yang dikenal sebagai pejuang perlawanan terhadap sistem Apartheid? (Pilih 3 jawaban benar)", options: ["Nelson Mandela", "F.W. de Klerk", "Desmond Tutu", "Hendrik Verwoerd", "Steve Biko"], answer: [0, 2, 4] },
+        { type: "mcc", q: "Bentuk-bentuk tekanan internasional yang dialami Afrika Selatan selama masa Apartheid antara lain... (Pilih 3 jawaban benar)", options: ["Bantuan senjata dari PBB", "Sanksi ekonomi global", "Boikot di bidang olahraga internasional", "Embargo senjata", "Pemberian status negara istimewa oleh AS"], answer: [1, 2, 3] },
+        { type: "mcc", q: "Berdasarkan kebijakan klasifikasi penduduk, ras apa saja yang diakui secara resmi oleh pemerintah Apartheid? (Pilih 4 jawaban benar)", options: ["Kulit Putih", "Kulit Hitam", "Kulit Berwarna (Coloured)", "Asia", "Hispanik"], answer: [0, 1, 2, 3] },
+        { type: "mcc", q: "Apa saja metode perlawanan yang dilakukan oleh ANC dan rakyat Afrika Selatan terhadap Apartheid? (Pilih 3 jawaban benar)", options: ["Bekerja sama dengan Partai Nasional", "Unjuk rasa damai dan pembangkangan sipil", "Mendukung kebijakan Bantustan", "Aksi mogok kerja dan boikot", "Perjuangan bersenjata melalui sayap militer"], answer: [1, 3, 4] },
+
+        // BENAR - SALAH (26-30)
+        { type: "tf", q: "Istilah 'Apartheid' dalam bahasa Afrikaans memiliki arti 'kebersamaan' atau 'persatuan'.", answer: false },
+        { type: "tf", q: "Sistem Apartheid secara resmi diberlakukan setelah Partai Nasional (National Party) memenangkan pemilu pada tahun 1948.", answer: true },
+        { type: "tf", q: "Bantustan adalah wilayah otonom bentukan pemerintah kulit putih yang bertujuan untuk membatasi hak politik penduduk kulit hitam.", answer: true },
+        { type: "tf", q: "Selama masa Apartheid, Afrika Selatan tetap diizinkan mengikuti ajang Olimpiade dan Piala Dunia untuk mempromosikan perdamaian.", answer: false },
+        { type: "tf", q: "Presiden F.W. de Klerk adalah tokoh yang berperan dalam pencabutan larangan ANC dan pembebasan Nelson Mandela pada tahun 1990.", answer: true },
+
+        // MENJODOHKAN (31-40)
+        { type: "match", q: "Partai politik utama yang memimpin perlawanan terhadap Apartheid", optionsList: ["Pass Laws", "Umkhonto we Sizwe", "Nelson Mandela", "Group Areas Act", "1994", "African National Congress (ANC)", "Desmond Tutu", "Afrikaner", "Steve Biko", "Rainbow Nation"], answerKey: 5 },
+        { type: "match", q: "Presiden kulit hitam pertama Afrika Selatan", optionsList: ["Pass Laws", "Umkhonto we Sizwe", "Nelson Mandela", "Group Areas Act", "1994", "African National Congress (ANC)", "Desmond Tutu", "Afrikaner", "Steve Biko", "Rainbow Nation"], answerKey: 2 },
+        { type: "match", q: "Undang-undang yang mengatur pemisahan wilayah tinggal berdasarkan ras", optionsList: ["Pass Laws", "Umkhonto we Sizwe", "Nelson Mandela", "Group Areas Act", "1994", "African National Congress (ANC)", "Desmond Tutu", "Afrikaner", "Steve Biko", "Rainbow Nation"], answerKey: 3 },
+        { type: "match", q: "Kewajiban membawa buku identitas khusus bagi penduduk kulit hitam", optionsList: ["Pass Laws", "Umkhonto we Sizwe", "Nelson Mandela", "Group Areas Act", "1994", "African National Congress (ANC)", "Desmond Tutu", "Afrikaner", "Steve Biko", "Rainbow Nation"], answerKey: 0 },
+        { type: "match", q: "Uskup Agung yang merupakan pejuang HAM anti-apartheid", optionsList: ["Pass Laws", "Umkhonto we Sizwe", "Nelson Mandela", "Group Areas Act", "1994", "African National Congress (ANC)", "Desmond Tutu", "Afrikaner", "Steve Biko", "Rainbow Nation"], answerKey: 6 },
+        { type: "match", q: "Pelopor Gerakan Kesadaran Hitam (Black Consciousness)", optionsList: ["Pass Laws", "Umkhonto we Sizwe", "Nelson Mandela", "Group Areas Act", "1994", "African National Congress (ANC)", "Desmond Tutu", "Afrikaner", "Steve Biko", "Rainbow Nation"], answerKey: 8 },
+        { type: "match", q: "Tahun pelaksanaan pemilu demokratis multiras pertama", optionsList: ["Pass Laws", "Umkhonto we Sizwe", "Nelson Mandela", "Group Areas Act", "1994", "African National Congress (ANC)", "Desmond Tutu", "Afrikaner", "Steve Biko", "Rainbow Nation"], answerKey: 4 },
+        { type: "match", q: "Sebutan untuk bangsa Afrika Selatan pasca-Apartheid", optionsList: ["Pass Laws", "Umkhonto we Sizwe", "Nelson Mandela", "Group Areas Act", "1994", "African National Congress (ANC)", "Desmond Tutu", "Afrikaner", "Steve Biko", "Rainbow Nation"], answerKey: 9 },
+        { type: "match", q: "Sayap militer bersenjata dari organisasi ANC", optionsList: ["Pass Laws", "Umkhonto we Sizwe", "Nelson Mandela", "Group Areas Act", "1994", "African National Congress (ANC)", "Desmond Tutu", "Afrikaner", "Steve Biko", "Rainbow Nation"], answerKey: 1 },
+        { type: "match", q: "Penduduk kulit putih keturunan Belanda di Afrika Selatan", optionsList: ["Pass Laws", "Umkhonto we Sizwe", "Nelson Mandela", "Group Areas Act", "1994", "African National Congress (ANC)", "Desmond Tutu", "Afrikaner", "Steve Biko", "Rainbow Nation"], answerKey: 7 }
+    ];
+
+    let currentIdx = 0;
+    let userAnswers = new Array(quizData.length).fill(null);
+    let cheatCount = 0;
+
+    document.addEventListener("visibilitychange", function() {
+        if (document.hidden && document.getElementById('quiz-screen').classList.contains('active')) {
+            cheatCount++;
+            alert("PERINGATAN KECURANGAN!\nAnda terdeteksi meninggalkan halaman kuis.");
+            if (cheatCount >= 2) {
+                alert("Anda terdeteksi keluar halaman berulang kali. Kuis dihentikan otomatis.");
+                finishQuizEarly();
+            }
+        }
+    });
+
+    function startQuiz() {
+        let elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(err => { console.log(err); });
+        }
+        document.getElementById('start-screen').classList.remove('active');
+        document.getElementById('quiz-screen').classList.add('active');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const qObj = quizData[currentIdx];
+        document.getElementById('question-tracker').innerText = `Soal ${currentIdx + 1} dari ${quizData.length}`;
+        document.getElementById('question-text').innerText = qObj.q;
+        
+        let typeBadge = "Pilihan Ganda";
+        if (qObj.type === 'mcc') typeBadge = "Pilihan Ganda Kompleks (Bisa > 1)";
+        if (qObj.type === 'tf') typeBadge = "Benar / Salah";
+        if (qObj.type === 'match') typeBadge = "Menjodohkan";
+        document.getElementById('question-type-badge').innerText = typeBadge;
+
+        const container = document.getElementById('question-content-container');
+        container.innerHTML = "";
+
+        if (qObj.type === 'mc') {
+            let html = '<div class="options-list">';
+            qObj.options.forEach((opt, idx) => {
+                let checked = userAnswers[currentIdx] === idx ? 'checked' : '';
+                html += `<label class="option-item"><input type="radio" name="mc_option" value="${idx}" ${checked} onclick="saveAnswer(${idx})"> <span><b>${String.fromCharCode(65 + idx)}.</b> ${opt}</span></label>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        } 
+        else if (qObj.type === 'mcc') {
+            let html = '<div class="options-list">';
+            let currentAns = userAnswers[currentIdx] || [];
+            qObj.options.forEach((opt, idx) => {
+                let checked = currentAns.includes(idx) ? 'checked' : '';
+                html += `<label class="option-item"><input type="checkbox" value="${idx}" ${checked} onclick="saveMccAnswer()"> <span><b>${String.fromCharCode(65 + idx)}.</b> ${opt}</span></label>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        else if (qObj.type === 'tf') {
+            let currentAns = userAnswers[currentIdx];
+            let checkedB = currentAns === true ? 'checked' : '';
+            let checkedS = currentAns === false ? 'checked' : '';
+            container.innerHTML = `
+                <div class="options-list">
+                    <label class="option-item"><input type="radio" name="tf_option" value="true" ${checkedB} onclick="saveTfAnswer(true)"> <span>Benar (B)</span></label>
+                    <label class="option-item"><input type="radio" name="tf_option" value="false" ${checkedS} onclick="saveTfAnswer(false)"> <span>Salah (S)</span></label>
+                </div>
+            `;
+        }
+        else if (qObj.type === 'match') {
+            let currentAns = userAnswers[currentIdx] !== null ? userAnswers[currentIdx] : "";
+            let selectHtml = `<select id="match-select" onchange="saveMatchAnswer(this.value)">`;
+            selectHtml += `<option value="">-- Pilih Jawaban yang Sesuai --</option>`;
+            qObj.optionsList.forEach((item, idx) => {
+                let selected = currentAns === idx ? 'selected' : '';
+                selectHtml += `<option value="${idx}" ${selected}>${item}</option>`;
+            });
+            selectHtml += `</select>`;
+
+            container.innerHTML = `
+                <div class="match-container">
+                    <div class="match-row">
+                        <span>Pilih pasangan yang tepat:</span>
+                        ${selectHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        document.getElementById('prev-btn').style.display = currentIdx === 0 ? 'none' : 'inline-block';
+        document.getElementById('next-btn').innerText = currentIdx === quizData.length - 1 ? 'Selesai & Refleksi' : 'Selanjutnya';
+    }
+
+    function saveAnswer(val) { userAnswers[currentIdx] = val; }
+    function saveMccAnswer() {
+        const checkboxes = document.querySelectorAll('#question-content-container input[type="checkbox"]');
+        let selected = [];
+        checkboxes.forEach((cb) => { if (cb.checked) selected.push(parseInt(cb.value)); });
+        userAnswers[currentIdx] = selected;
+    }
+    function saveTfAnswer(val) { userAnswers[currentIdx] = val; }
+    function saveMatchAnswer(val) { userAnswers[currentIdx] = val === "" ? null : parseInt(val); }
+
+    function nextQuestion() {
+        if (currentIdx < quizData.length - 1) {
+            currentIdx++;
+            loadQuestion();
+        } else {
+            goToReflection();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIdx > 0) {
+            currentIdx--;
+            loadQuestion();
+        }
+    }
+
+    function finishQuizEarly() {
+        goToReflection();
+    }
+
+    function goToReflection() {
+        document.getElementById('quiz-screen').classList.remove('active');
+        document.getElementById('reflection-screen').classList.add('active');
+    }
+
+    function submitReflection() {
+        const reflection = document.getElementById('reflection-text').value;
+        if (!reflection.trim()) {
+            alert("Mohon isi kolom refleksi terlebih dahulu.");
+            return;
+        }
+        document.getElementById('display-reflection').innerText = reflection;
+        document.getElementById('reflection-screen').classList.remove('active');
+        document.getElementById('result-screen').classList.add('active');
+        calculateScore();
+    }
+
+    function calculateScore() {
+        let correctCount = 0;
+        let tbody = document.getElementById('review-tbody');
+        tbody.innerHTML = "";
+
+        quizData.forEach((q, idx) => {
+            let userAns = userAnswers[idx];
+            let isCorrect = false;
+            let correctDesc = "";
+
+            if (q.type === 'mc') {
+                isCorrect = (userAns === q.answer);
+                correctDesc = q.options[q.answer];
+                if (isCorrect) correctCount++;
+            } 
+            else if (q.type === 'mcc') {
+                if (Array.isArray(userAns)) {
+                    let sortedUser = [...userAns].sort();
+                    let sortedAns = [...q.answer].sort();
+                    isCorrect = (JSON.stringify(sortedUser) === JSON.stringify(sortedAns));
+                }
+                correctDesc = q.answer.map(i => q.options[i]).join(', ');
+                if (isCorrect) correctCount++;
+            }
+            else if (q.type === 'tf') {
+                isCorrect = (userAns === q.answer);
+                correctDesc = q.answer ? "Benar" : "Salah";
+                if (isCorrect) correctCount++;
+            }
+            else if (q.type === 'match') {
+                isCorrect = (userAns === q.answerKey);
+                correctDesc = q.optionsList[q.answerKey];
+                if (isCorrect) correctCount++;
+            }
+
+            let finalCalculatedScore = Math.round((correctCount / quizData.length) * 100);
+            document.getElementById('final-score-text').innerText = `Skor Anda: ${finalCalculatedScore} / 100 (${correctCount} benar dari 40 soal)`;
+
+            let statusBadge = isCorrect ? '<span style="color:var(--success); font-weight:bold;">Benar</span>' : '<span style="color:var(--danger); font-weight:bold;">Salah</span>';
+            tbody.innerHTML += `
+                <tr>
+                    <td><b>${idx + 1}</b></td>
+                    <td>${q.q}</td>
+                    <td>${formatUserAnswerDisplay(q, userAns)}</td>
+                    <td>${correctDesc}</td>
+                    <td>${statusBadge}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function formatUserAnswerDisplay(q, ans) {
+        if (ans === null || ans === undefined || (Array.isArray(ans) && ans.length === 0)) return "<i>Tidak dijawab</i>";
+        if (q.type === 'mc') return q.options[ans];
+        if (q.type === 'mcc') return ans.map(i => q.options[i]).join(', ');
+        if (q.type === 'tf') return ans ? "Benar" : "Salah";
+        if (q.type === 'match') return q.optionsList[ans];
+        return ans;
+    }
+
+    function restartQuiz() {
+        currentIdx = 0;
+        userAnswers = new Array(quizData.length).fill(null);
+        cheatCount = 0;
+        document.getElementById('result-screen').classList.remove('active');
+        document.getElementById('start-screen').classList.add('active');
+    }
+</script>
+
+</body>
+</html>
